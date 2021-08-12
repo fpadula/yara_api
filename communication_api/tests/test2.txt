@@ -1,0 +1,6 @@
+t 15 15 15
+s 20 20 20
+i inout_cubic inout_cubic inout_cubic 
+t -45 -45 -45
+t 0 0 0
+q

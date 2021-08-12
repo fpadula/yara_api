@@ -1,0 +1,456 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title "Yara Internal PCB"
+Date "2021-07-29"
+Rev "v01"
+Comp ""
+Comment1 "This is the PCB that is responsible for the servos conections and power distribution."
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Device:CP C?
+U 1 1 6103387B
+P 3050 1400
+F 0 "C?" V 2795 1400 50  0000 C CNN
+F 1 "47uF" V 2886 1400 50  0000 C CNN
+F 2 "" H 3088 1250 50  0001 C CNN
+F 3 "~" H 3050 1400 50  0001 C CNN
+	1    3050 1400
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3200 1550 3200 1400
+Connection ~ 3200 1400
+Wire Wire Line
+	3000 1100 3000 1200
+Wire Wire Line
+	3000 1200 2900 1200
+Wire Wire Line
+	2900 1200 2900 1400
+Connection ~ 2900 1400
+Wire Wire Line
+	3100 1100 3100 1200
+Wire Wire Line
+	3100 1200 3200 1200
+Wire Wire Line
+	3200 1200 3200 1400
+$Comp
+L Connector:Conn_01x03_Male J?
+U 1 1 610358DC
+P 3100 900
+F 0 "J?" V 3162 1044 50  0000 L CNN
+F 1 "Joint 1 Servo connector" V 3253 1044 50  0000 L CNN
+F 2 "" H 3100 900 50  0001 C CNN
+F 3 "~" H 3100 900 50  0001 C CNN
+	1    3100 900 
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2900 1950 3000 1950
+Wire Wire Line
+	2900 1400 2900 1950
+Wire Wire Line
+	3100 1950 3050 1950
+Wire Wire Line
+	3050 1950 3050 1550
+Wire Wire Line
+	3050 1550 3200 1550
+Wire Wire Line
+	3200 1100 3200 1150
+$Comp
+L Device:CP C?
+U 1 1 6109AFB8
+P 3050 2250
+F 0 "C?" V 2795 2250 50  0000 C CNN
+F 1 "47uF" V 2886 2250 50  0000 C CNN
+F 2 "" H 3088 2100 50  0001 C CNN
+F 3 "~" H 3050 2250 50  0001 C CNN
+	1    3050 2250
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3200 2400 3200 2250
+Connection ~ 3200 2250
+Wire Wire Line
+	3000 1950 3000 2050
+Wire Wire Line
+	3000 2050 2900 2050
+Wire Wire Line
+	2900 2050 2900 2250
+Wire Wire Line
+	3100 1950 3100 2050
+Wire Wire Line
+	3100 2050 3200 2050
+Wire Wire Line
+	3200 2050 3200 2250
+$Comp
+L Connector:Conn_01x03_Male J?
+U 1 1 6109B01F
+P 3100 1750
+F 0 "J?" V 3162 1894 50  0000 L CNN
+F 1 "Joint 2 Servo connector" V 3253 1894 50  0000 L CNN
+F 2 "" H 3100 1750 50  0001 C CNN
+F 3 "~" H 3100 1750 50  0001 C CNN
+	1    3100 1750
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3050 2400 3200 2400
+Wire Wire Line
+	3200 1950 3200 2000
+Connection ~ 3000 1950
+Connection ~ 3100 1950
+Wire Wire Line
+	2900 2800 3000 2800
+Wire Wire Line
+	3100 2800 3050 2800
+$Comp
+L Device:CP C?
+U 1 1 6109EA8B
+P 3050 3100
+F 0 "C?" V 2795 3100 50  0000 C CNN
+F 1 "47uF" V 2886 3100 50  0000 C CNN
+F 2 "" H 3088 2950 50  0001 C CNN
+F 3 "~" H 3050 3100 50  0001 C CNN
+	1    3050 3100
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3200 3250 3200 3100
+Connection ~ 3200 3100
+Wire Wire Line
+	3000 2800 3000 2900
+Wire Wire Line
+	3000 2900 2900 2900
+Wire Wire Line
+	2900 2900 2900 3100
+Connection ~ 2900 3100
+Wire Wire Line
+	3100 2800 3100 2900
+Wire Wire Line
+	3100 2900 3200 2900
+Wire Wire Line
+	3200 2900 3200 3100
+$Comp
+L Connector:Conn_01x03_Male J?
+U 1 1 6109EA9E
+P 3100 2600
+F 0 "J?" V 3162 2744 50  0000 L CNN
+F 1 "Joint 3 Servo connector" V 3253 2744 50  0000 L CNN
+F 2 "" H 3100 2600 50  0001 C CNN
+F 3 "~" H 3100 2600 50  0001 C CNN
+	1    3100 2600
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2900 3100 2900 3650
+Wire Wire Line
+	3050 3650 3050 3250
+Wire Wire Line
+	3050 3250 3200 3250
+Wire Wire Line
+	3200 2800 3200 2850
+Connection ~ 3000 2800
+Connection ~ 3100 2800
+Wire Wire Line
+	3050 2800 3050 2400
+Connection ~ 2900 2250
+Wire Wire Line
+	2900 2250 2900 2800
+Wire Wire Line
+	2900 3650 3000 3650
+Wire Wire Line
+	3100 3650 3050 3650
+$Comp
+L Device:CP C?
+U 1 1 610A5AD0
+P 3050 3950
+F 0 "C?" V 2795 3950 50  0000 C CNN
+F 1 "47uF" V 2886 3950 50  0000 C CNN
+F 2 "" H 3088 3800 50  0001 C CNN
+F 3 "~" H 3050 3950 50  0001 C CNN
+	1    3050 3950
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3200 4100 3200 3950
+Connection ~ 3200 3950
+Wire Wire Line
+	3000 3650 3000 3750
+Wire Wire Line
+	3000 3750 2900 3750
+Wire Wire Line
+	2900 3750 2900 3950
+Connection ~ 2900 3950
+Wire Wire Line
+	3100 3650 3100 3750
+Wire Wire Line
+	3100 3750 3200 3750
+Wire Wire Line
+	3200 3750 3200 3950
+$Comp
+L Connector:Conn_01x03_Male J?
+U 1 1 610A5AE3
+P 3100 3450
+F 0 "J?" V 3162 3594 50  0000 L CNN
+F 1 "Joint 4 Servo connector" V 3253 3594 50  0000 L CNN
+F 2 "" H 3100 3450 50  0001 C CNN
+F 3 "~" H 3100 3450 50  0001 C CNN
+	1    3100 3450
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2900 3950 2900 4500
+Wire Wire Line
+	3050 4500 3050 4100
+Wire Wire Line
+	3050 4100 3200 4100
+Wire Wire Line
+	3200 3650 3200 3700
+Connection ~ 3000 3650
+Connection ~ 3100 3650
+Wire Wire Line
+	2900 4500 3000 4500
+Wire Wire Line
+	3100 4500 3050 4500
+$Comp
+L Device:CP C?
+U 1 1 610BAB4A
+P 3050 4800
+F 0 "C?" V 2795 4800 50  0000 C CNN
+F 1 "47uF" V 2886 4800 50  0000 C CNN
+F 2 "" H 3088 4650 50  0001 C CNN
+F 3 "~" H 3050 4800 50  0001 C CNN
+	1    3050 4800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3200 4950 3200 4800
+Connection ~ 3200 4800
+Wire Wire Line
+	3000 4500 3000 4600
+Wire Wire Line
+	3000 4600 2900 4600
+Wire Wire Line
+	2900 4600 2900 4800
+Connection ~ 2900 4800
+Wire Wire Line
+	3100 4500 3100 4600
+Wire Wire Line
+	3100 4600 3200 4600
+Wire Wire Line
+	3200 4600 3200 4800
+$Comp
+L Connector:Conn_01x03_Male J?
+U 1 1 610BAB5D
+P 3100 4300
+F 0 "J?" V 3162 4444 50  0000 L CNN
+F 1 "Joint 5 Servo connector" V 3253 4444 50  0000 L CNN
+F 2 "" H 3100 4300 50  0001 C CNN
+F 3 "~" H 3100 4300 50  0001 C CNN
+	1    3100 4300
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2900 4800 2900 5350
+Wire Wire Line
+	3050 5350 3050 4950
+Wire Wire Line
+	3050 4950 3200 4950
+Wire Wire Line
+	3200 4500 3200 4550
+Connection ~ 3000 4500
+Connection ~ 3100 4500
+Wire Wire Line
+	2900 5350 3000 5350
+Wire Wire Line
+	3100 5350 3050 5350
+$Comp
+L Device:CP C?
+U 1 1 610C1727
+P 3050 5650
+F 0 "C?" V 2795 5650 50  0000 C CNN
+F 1 "47uF" V 2886 5650 50  0000 C CNN
+F 2 "" H 3088 5500 50  0001 C CNN
+F 3 "~" H 3050 5650 50  0001 C CNN
+	1    3050 5650
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3200 5800 3200 5650
+Connection ~ 3200 5650
+Wire Wire Line
+	3000 5350 3000 5450
+Wire Wire Line
+	3000 5450 2900 5450
+Wire Wire Line
+	2900 5450 2900 5650
+Connection ~ 2900 5650
+Wire Wire Line
+	3100 5350 3100 5450
+Wire Wire Line
+	3100 5450 3200 5450
+Wire Wire Line
+	3200 5450 3200 5650
+$Comp
+L Connector:Conn_01x03_Male J?
+U 1 1 610C173A
+P 3100 5150
+F 0 "J?" V 3162 5294 50  0000 L CNN
+F 1 "Joint 6 Servo connector" V 3253 5294 50  0000 L CNN
+F 2 "" H 3100 5150 50  0001 C CNN
+F 3 "~" H 3100 5150 50  0001 C CNN
+	1    3100 5150
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2900 5650 2900 6200
+Wire Wire Line
+	3050 6200 3050 5800
+Wire Wire Line
+	3050 5800 3200 5800
+Wire Wire Line
+	3200 5350 3200 5400
+Connection ~ 3000 5350
+Connection ~ 3100 5350
+$Comp
+L Connector:RJ45 J?
+U 1 1 610CB160
+P 5600 3400
+F 0 "J?" H 5270 3404 50  0000 R CNN
+F 1 "RJ45" H 5270 3495 50  0000 R CNN
+F 2 "" V 5600 3425 50  0001 C CNN
+F 3 "~" V 5600 3425 50  0001 C CNN
+	1    5600 3400
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5000 3100 5000 1150
+Wire Wire Line
+	3200 1150 5000 1150
+Wire Wire Line
+	4900 3200 4900 2000
+Wire Wire Line
+	3200 2000 4900 2000
+Wire Wire Line
+	4800 3300 4800 2850
+Wire Wire Line
+	3200 2850 4800 2850
+Wire Wire Line
+	4800 3400 4800 3700
+Wire Wire Line
+	3200 3700 4800 3700
+Wire Wire Line
+	4900 3500 4900 4550
+Wire Wire Line
+	3200 4550 4900 4550
+Wire Wire Line
+	5000 3600 5000 5400
+Wire Wire Line
+	3200 5400 5000 5400
+Wire Wire Line
+	2900 6200 3000 6200
+Wire Wire Line
+	3100 6200 3050 6200
+$Comp
+L Device:CP C?
+U 1 1 610F5116
+P 3050 6500
+F 0 "C?" V 2795 6500 50  0000 C CNN
+F 1 "47uF" V 2886 6500 50  0000 C CNN
+F 2 "" H 3088 6350 50  0001 C CNN
+F 3 "~" H 3050 6500 50  0001 C CNN
+	1    3050 6500
+	0    1    1    0   
+$EndComp
+Connection ~ 3200 6500
+Wire Wire Line
+	3000 6200 3000 6300
+Wire Wire Line
+	3000 6300 2900 6300
+Wire Wire Line
+	2900 6300 2900 6500
+Connection ~ 2900 6500
+Wire Wire Line
+	3100 6200 3100 6300
+Wire Wire Line
+	3100 6300 3200 6300
+Wire Wire Line
+	3200 6300 3200 6500
+$Comp
+L Connector:Conn_01x03_Male J?
+U 1 1 610F5129
+P 3100 6000
+F 0 "J?" V 3162 6144 50  0000 L CNN
+F 1 "Gripper connector" V 3253 6144 50  0000 L CNN
+F 2 "" H 3100 6000 50  0001 C CNN
+F 3 "~" H 3100 6000 50  0001 C CNN
+	1    3100 6000
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3200 6200 3200 6250
+Connection ~ 3000 6200
+Connection ~ 3100 6200
+$Comp
+L power:VCC #PWR?
+U 1 1 610F9FFC
+P 3200 7150
+F 0 "#PWR?" H 3200 7000 50  0001 C CNN
+F 1 "VCC" H 3215 7323 50  0000 C CNN
+F 2 "" H 3200 7150 50  0001 C CNN
+F 3 "" H 3200 7150 50  0001 C CNN
+	1    3200 7150
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 610FADFA
+P 2900 7150
+F 0 "#PWR?" H 2900 6900 50  0001 C CNN
+F 1 "GND" H 2905 6977 50  0000 C CNN
+F 2 "" H 2900 7150 50  0001 C CNN
+F 3 "" H 2900 7150 50  0001 C CNN
+	1    2900 7150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3200 6500 3200 7150
+Wire Wire Line
+	2900 6500 2900 7150
+Wire Wire Line
+	5000 3100 5200 3100
+Wire Wire Line
+	4900 3200 5200 3200
+Wire Wire Line
+	4800 3300 5200 3300
+Wire Wire Line
+	4800 3400 5200 3400
+Wire Wire Line
+	4900 3500 5200 3500
+Wire Wire Line
+	5000 3600 5200 3600
+Wire Wire Line
+	5200 3700 5100 3700
+Wire Wire Line
+	5100 3700 5100 6250
+Wire Wire Line
+	3200 6250 5100 6250
+$Comp
+L power:GND #PWR?
+U 1 1 61120ABF
+P 5200 3800
+F 0 "#PWR?" H 5200 3550 50  0001 C CNN
+F 1 "GND" H 5205 3627 50  0000 C CNN
+F 2 "" H 5200 3800 50  0001 C CNN
+F 3 "" H 5200 3800 50  0001 C CNN
+	1    5200 3800
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC

@@ -1,0 +1,113 @@
+ABS_X:
+  action_index: 0
+  src_min: -32768
+  src_max: 32767
+  dest_min: -1
+  dest_max: 1
+  deadzone: 3000
+ABS_Y:
+  action_index: 1
+  src_min: -32768
+  src_max: 32767
+  dest_min: 1
+  dest_max: -1
+  deadzone: 3000
+ABS_RZ:
+  action_index: 2
+  src_min: 0
+  src_max: 255
+  dest_min: 0
+  dest_max: 1
+  deadzone: 0
+ABS_Z:
+  action_index: 3
+  src_min: 0
+  src_max: 255
+  dest_min: 0
+  dest_max: 1
+  deadzone: 0
+BTN_SOUTH:
+  action_index: 4
+  src_min: 0
+  src_max: 1
+  dest_min: 0
+  dest_max: 1
+  deadzone: 0
+BTN_EAST:
+  action_index: 5
+  src_min: 0
+  src_max: 1
+  dest_min: 0
+  dest_max: 1
+  deadzone: 0
+BTN_START:
+  action_index: 6
+  src_min: 0
+  src_max: 1
+  dest_min: 0
+  dest_max: 1
+  deadzone: 0
+
+ABS_RX:
+  action_index: 7
+  src_min: -32768
+  src_max: 32767
+  dest_min: -1
+  dest_max: 1
+  deadzone: 3000
+ABS_RY:
+  action_index: 8
+  src_min: -32768
+  src_max: 32767
+  dest_min: 1
+  dest_max: -1
+  deadzone: 3000
+BTN_TR:
+  action_index: 9
+  src_min: 0
+  src_max: 1
+  dest_min: 0
+  dest_max: 1
+  deadzone: 0
+BTN_TL:
+  action_index: 10
+  src_min: 0
+  src_max: 1
+  dest_min: 0
+  dest_max: 1
+  deadzone: 0
+BTN_WEST:
+  action_index: 11
+  src_min: 0
+  src_max: 1
+  dest_min: 0
+  dest_max: 1
+  deadzone: 0
+BTN_NORTH:
+  action_index: 12
+  src_min: 0
+  src_max: 1
+  dest_min: 0
+  dest_max: 1
+  deadzone: 0
+BTN_THUMBL:
+  action_index: 13
+  src_min: 0
+  src_max: 1
+  dest_min: 0
+  dest_max: 1
+  deadzone: 0
+# ABS_RX:
+#   action_index: 3
+#   src_min: -32768
+#   src_max: 32767
+#   dest_min: -1
+#   dest_max: 1
+#   deadzone: 3000
+# ABS_HAT0Y:
+#   action_index: 4
+#   src_min: -1
+#   src_max: 1
+#   dest_min: -1
+#   dest_max: 1
+#   deadzone: 0
