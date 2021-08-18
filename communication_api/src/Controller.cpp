@@ -21,11 +21,12 @@ Controller::Controller(const char* port){
     this->i_funcs_map["inout_cubic"] = 3.0f;
     // i_funcs_map
     this->executing_task = false;
-    for(int i = 0; i < NO_OF_JOINTS; i++){
-        this->current_joint_pos[i] = 0;
-        this->current_joint_vel[i] = 0;
-        this->current_joint_acc[i] = 0;
-    }
+    this->update_arm_info();
+    // for(int i = 0; i < NO_OF_JOINTS; i++){
+    //     this->current_joint_pos[i] = 0;
+    //     this->current_joint_vel[i] = 0;
+    //     this->current_joint_acc[i] = 0;
+    // }
 }
 
 void Controller::close_connection(){

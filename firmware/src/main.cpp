@@ -50,8 +50,8 @@ float joint_specs[NO_OF_JOINTS][3] = {
     {0.0f, 90.0f, 0.0f}
 };
 
-float initial_pos[NO_OF_JOINTS] ={0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
-// float initial_pos[NO_OF_JOINTS] ={0.00, 90.00, -90.00, 0.00, 90.00, 0.00, 0.00};
+// float initial_pos[NO_OF_JOINTS] ={0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
+float initial_pos[NO_OF_JOINTS] ={0.00, 90.00, -90.00, 0.00, 90.00, 0.00, 0.00};
 
 // Position, velocity and acceleration info for each joint
 float info[NO_OF_JOINTS*3];

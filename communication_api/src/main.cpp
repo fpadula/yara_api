@@ -7,47 +7,12 @@
 int main(){
     char cmd;
     float t_pos[7], t_spds[7];
+    double eepos[3], eerot[9], joint_angles[6];
     bool run, verbose;
+    std::string sts[7];
 
     // return 0;
     Controller c = Controller("/dev/ttyUSB0");
-    std::string sts[7];
-
-    double eetrans[3], eerot[9],outputangles[6];
-
-    eerot[0] = 1.0f; eerot[1] = 0.0f; eerot[2] = 0.0f;
-    eerot[3] = 0.0f; eerot[4] = 1.0f; eerot[5] = 0.0f;
-    eerot[6] = 0.0f; eerot[7] = 0.0f; eerot[8] = 1.0f;
-    // eetrans[0] = 0.0995315f;
-    // eetrans[1] = 0.300506f;
-    // eetrans[2] = 0.146542f;
-
-    eetrans[0] = 1e-06;
-    eetrans[1] = 0.229;
-    eetrans[2] = 0.12800000000000006;
-
-    
-    if(c.ik(eerot, eetrans, outputangles)){
-        for(int i = 0;i <6;i++)
-            printf("%.5f ", outputangles[i]);
-        printf("\n");
-    }
-    else{
-        printf("No solution!\n");
-    }
-
-    c.fk(outputangles, eerot, eetrans);
-    for(int i = 0;i <9;i++)
-        printf("%.5f ", eerot[i]);
-    printf("\n");
-    for(int i = 0;i <3;i++)
-        printf("%.5f ", eetrans[i]);
-    printf("\n");
-
-    // return 0;
-    // Sleeping for 3s, waiting arduino to get ready
-    // usleep(3 * 1000000);
-
     run = true;
     verbose = true;
     c.set_verbose(verbose);
@@ -130,6 +95,30 @@ int main(){
                         c.current_joint_acc[2], c.current_joint_acc[3],
                         c.current_joint_acc[4], c.current_joint_acc[5],
                         c.current_joint_acc[6]);
+                break;
+            case 'k':
+                scanf("  %lf  %lf  %lf  %lf  %lf  %lf  %lf  %lf  %lf  %lf  %lf  %lf", &eepos[0], &eepos[1], &eepos[2],
+                        &eerot[0], &eerot[1], &eerot[2], &eerot[3], &eerot[4], &eerot[5],
+                        &eerot[6], &eerot[7], &eerot[8]);
+                if(verbose)
+                    printf("Requested pos ( %lf,  %lf,  %lf) with orientation ( ( %lf,  %lf,  %lf), ( %lf,  %lf,  %lf), ( %lf, %lf,  %lf) ).\n",  eepos[0],  eepos[1],  eepos[2],
+                         eerot[0],  eerot[1],  eerot[2],  eerot[3],  eerot[4],  eerot[5],
+                         eerot[6],  eerot[7],  eerot[8]);
+                if(c.ik(eerot, eepos, joint_angles)){
+                    for(int i = 0; i < 6; i++)
+                        t_pos[i] = (float) joint_angles[i];
+                    t_pos[6] = c.current_joint_pos[6];
+
+                    if(c.set_angles(t_pos) != 0)
+                        printf("Error!\n");
+                    else{
+                        if(verbose)
+                            printf("Done!\n");
+                    }
+                }
+                else{
+                    printf("Solution not found\n");
+                }
                 break;
             case 'h':
                 printf("h\t\t Display this help message\n");
