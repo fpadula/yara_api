@@ -6,7 +6,8 @@
 
 int main(){
     char cmd;
-    float t_pos[7], t_spds[7];
+    float t_pos[7], t_spds[7], single_joint;
+    int single_joint_no;
     double eepos[3], eerot[9], joint_angles[6];
     bool run, verbose;
     std::string sts[7];
@@ -24,6 +25,28 @@ int main(){
                 // Reading target angles
                 scanf(" %f %f %f %f %f %f %f", &t_pos[0], &t_pos[1], &t_pos[2],
                         &t_pos[3], &t_pos[4], &t_pos[5], &t_pos[6]);
+                if(verbose)
+                    printf("Sending move request to arm.\n");
+
+                if(c.set_angles(t_pos) != 0)
+                    printf("Error!\n");
+                else{
+                    if(verbose)
+                        printf("Done!\n");
+                }
+                break;
+            case 'j':
+                // Reading target angles
+                scanf(" %d %f", &single_joint_no, &single_joint);
+                for(int i = 0; i < 7; i++){
+                    if(i == single_joint_no){
+                        t_pos[i] = single_joint;
+                    }
+                    else{
+                        t_pos[i] = c.current_joint_pos[i];
+                    }
+                }
+
                 if(verbose)
                     printf("Sending move request to arm.\n");
 

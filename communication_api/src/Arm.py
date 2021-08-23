@@ -28,7 +28,7 @@ class Arm:
 
     def close_gripper(self, state):
         if(state):
-            self.joint_positions[6] = 90
+            self.joint_positions[6] = 60
         else:
             self.joint_positions[6] = 0
         self.set_joints_angles(self.joint_positions)

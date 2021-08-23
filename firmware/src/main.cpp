@@ -41,14 +41,23 @@ uint8_t arm_pinout[NO_OF_JOINTS] = {
 };
 // For each joint, specify min and max limits and the joint offset
 float joint_specs[NO_OF_JOINTS][3] = {    
-    {-90.0f, 90.0f, -7.0f},
-    {-90.0f, 90.0f, 0.0f},
+    {-90.0f, 90.0f, -4.0f},
+    {-90.0f, 90.0f, -2.0f},
     {-90.0f, 90.0f, -5.0f},
-    {-90.0f, 90.0f, 5.0f},
     {-90.0f, 90.0f, 0.0f},
+    {-90.0f, 90.0f, 6.0f},
     {-90.0f, 90.0f, 0.0f},
-    {0.0f, 90.0f, 0.0f}
+    {0.0f, 60.0f, 0.0f}
 };
+// float joint_specs[NO_OF_JOINTS][3] = {    
+//     {-90.0f, 90.0f, -7.0f},
+//     {-90.0f, 90.0f, 0.0f},
+//     {-90.0f, 90.0f, -5.0f},
+//     {-90.0f, 90.0f, 5.0f},
+//     {-90.0f, 90.0f, 0.0f},
+//     {-90.0f, 90.0f, 0.0f},
+//     {0.0f, 90.0f, 0.0f}
+// };
 
 // float initial_pos[NO_OF_JOINTS] ={0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
 float initial_pos[NO_OF_JOINTS] ={0.00, 90.00, -90.00, 0.00, 90.00, 0.00, 0.00};

@@ -51,11 +51,11 @@ Transform coords from pixels in workspace to robot coords:
     Returns:
         Robot world coordinates
 """
-def wspix2robot_coord(point, robot_pos, robot_rot_mat, ws_pix_to_world, world_to_ws_pix):
-    robot_pos_meters = np.matmul(world_to_ws_pix, np.r_[robot_pos, [1]]) # Getting robot position in ws pixels
-    ret = point - robot_pos_meters # Subtracting the robot origin
-    ret = np.matmul(robot_rot_mat, ret)
-    ret = np.matmul(ws_pix_to_world, np.r_[ret, [1]])
+def image2robot_coord(point, offset, robot_pos, robot_rot_mat, camera_to_world_h):
+    point_wc = warp_point(camera_to_world_h, point) # Getting robot position in ws pixels
+    ret = point_wc - robot_pos # Subtracting the robot origin
+    ret = np.matmul(robot_rot_mat, ret) - offset
+    # ret = np.matmul(ws_pix_to_world, np.r_[ret, [1]])
     return ret
 
 """
@@ -67,18 +67,22 @@ pixels.
         H:      Homography transform
         size:   Workspace size (width, height)
 """
-def calculate_H(ws_corners):
-    ws_view_height = np.linalg.norm(np.array(ws_corners[0])-np.array(ws_corners[1]))
-    ws_view_width = np.linalg.norm(np.array(ws_corners[2])-np.array(ws_corners[1]))
+def calculate_H(ws_corners, to_screen = True, dest_pts = None):
+    if to_screen:
+        ws_view_height = np.linalg.norm(np.array(ws_corners[0])-np.array(ws_corners[1]))
+        ws_view_width = np.linalg.norm(np.array(ws_corners[2])-np.array(ws_corners[1]))
 
-    ws_view_corners = np.float32([
-        [ws_view_width, 0],
-        [ws_view_width, ws_view_height],
-        [0, ws_view_height],
-        [0, 0]
-    ])
-    H, _ = cv2.findHomography(np.array(ws_corners), ws_view_corners, cv2.RANSAC,5.0)
-    return H, (int(ws_view_width), int(ws_view_height))
+        dest_pts = np.float32([
+            [ws_view_width, 0],
+            [ws_view_width, ws_view_height],
+            [0, ws_view_height],
+            [0, 0]
+        ])
+        size = (int(ws_view_width), int(ws_view_height))
+    else:
+        size = (int(dest_pts[1][0]), int(dest_pts[1][1]))
+    H, _ = cv2.findHomography(np.array(ws_corners), dest_pts, cv2.RANSAC,5.0)
+    return H, size
 
 tag_detector = dt_apriltags.Detector(families='tag36h11')
 camera_matrix = np.loadtxt('camera_params.txt', delimiter=',')
@@ -123,12 +127,12 @@ while detecting_ws_corners:
 
     if len(detected_tags)>=4:
         draw_rectangle(frame, ws_corners, (0, 255, 0), 2, diagonals=True)
-        camera_to_ws_H, ws_view_size = calculate_H(ws_corners)
-        ws_view = cv2.warpPerspective(frame , camera_to_ws_H, ws_view_size)
+        # camera_to_ws_H, ws_view_size = calculate_H(ws_corners)
+        # ws_view = cv2.warpPerspective(frame , camera_to_ws_H, ws_view_size)
 
-        frame = cv2.resize(frame, (int(size[0]/2), int(size[1]/2)))
-        ws_view = cv2.resize(ws_view, (int(size[0]/2), int(size[1]/2)))
-        frame = np.hstack((frame, ws_view))
+        # frame = cv2.resize(frame, (int(size[0]/2), int(size[1]/2)))
+        # ws_view = cv2.resize(ws_view, (int(size[0]/2), int(size[1]/2)))
+        # frame = np.hstack((frame, ws_view))
     cv2.imshow('frame', frame)
 
     key = cv2.waitKey(1) & 0xFF
@@ -138,100 +142,114 @@ while detecting_ws_corners:
         print("\tSaving workspace specs to file...")
         ws_corners = np.array(ws_corners)
         np.savetxt('ws_corners.txt', ws_corners, delimiter=',')
+        d0d3_d = float(input("Enter distance between tag 0 and 3:"))
+        d0d1_d = float(input("Enter distance between tag 0 and 1:"))
+        np.savetxt('d0d3_d.txt', np.array([d0d3_d]), delimiter=',')
+        np.savetxt('d0d1_d.txt', np.array([d0d1_d]), delimiter=',')
     # Load from file:
     elif key==27:
         detecting_ws_corners = False
         print("\tLoading workspace specs from file...")
         ws_corners = np.loadtxt('ws_corners.txt', delimiter=',')
+        d0d3_d = np.loadtxt('d0d3_d.txt', delimiter=',')
+        d0d1_d = np.loadtxt('d0d1_d.txt', delimiter=',')
 
-camera_to_ws_H, ws_view_size = calculate_H(ws_corners)
-ws_to_camera_H = np.linalg.inv(camera_to_ws_H)
 
-measuring_px2m_ratio = True
-horizontal_d = True
-vertical_d = False
-tags_to_id = [0, 3]
-measuring_pts = {}
-for tag_no in tags_to_id:
-    measuring_pts[tag_no] = ws_corners[tag_no]
-print("2. Setting pixel to meters ratio:")
-# print("\tSet tag 0 and tag 1 25cm apart and press Enter or press Esc to skip and load from file.")
-print("\tPress enter and enter the distance between tags 0 and 1 in meters.")
+dest_pts = np.float32([
+    [d0d3_d, 0],
+    [d0d3_d, d0d1_d],
+    [0, d0d1_d],
+    [0, 0]
+])
 
-# input("Insert distance between tag 0 and 1:")
-while measuring_px2m_ratio:
-    ret, frame = cap.read()
-    if correct_frames:
-        frame = cv2.undistort(frame, camera_matrix, camera_distortion, None, newcameramtx)
-        x, y, w, h = roi
-        frame = frame[y:y+h, x:x+w]
+camera_to_world_H, _ = calculate_H(ws_corners,False, dest_pts)
+world_to_camera_H = np.linalg.inv(camera_to_world_H)
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) #-- remember, OpenCV stores color images in Blue,
-    draw_rectangle(frame, ws_corners, (0, 255, 0), 2, diagonals=True)
-    detected_tags = tag_detector.detect(gray)
-    # if ids is not None and ids[0] == id_to_find:
-    for tag in detected_tags:
-        if tag.tag_id not in tags_to_id:
-            continue
-        measuring_pts[tag.tag_id] = [tag.center[0], tag.center[1]]
-        draw_rectangle(frame, tag.corners, (0, 255, 0), 2)
-        print_tag_info(frame, tag, cv2.FONT_HERSHEY_SIMPLEX, (0, 0, 255), 0.5, 2)
+# measuring_px2m_ratio = True
+# horizontal_d = True
+# vertical_d = False
+# tags_to_id = [0, 3]
+# measuring_pts = {}
+# for tag_no in tags_to_id:
+#     measuring_pts[tag_no] = ws_corners[tag_no]
+# print("2. Setting pixel to meters ratio:")
+# # print("\tSet tag 0 and tag 1 25cm apart and press Enter or press Esc to skip and load from file.")
+# print("\tPress enter and enter the distance between tags 0 and 1 in meters.")
 
-    draw_line(frame, measuring_pts[tags_to_id[0]], measuring_pts[tags_to_id[1]], (0, 0, 255), 3)
-    measuring_pts_vector = warp_point(camera_to_ws_H, np.array(measuring_pts[tags_to_id[0]]))\
-                            -warp_point(camera_to_ws_H, np.array(measuring_pts[tags_to_id[1]]))
-    pixel_dist = np.linalg.norm(measuring_pts_vector)
-    dist_text_anchor = (np.array(measuring_pts[tags_to_id[1]]) + measuring_pts_vector/2).astype(int)
-    cv2.putText(frame, "D=" + str(int(pixel_dist)) + "px", dist_text_anchor,
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 4)
+# # input("Insert distance between tag 0 and 1:")
+# while measuring_px2m_ratio:
+#     ret, frame = cap.read()
+#     if correct_frames:
+#         frame = cv2.undistort(frame, camera_matrix, camera_distortion, None, newcameramtx)
+#         x, y, w, h = roi
+#         frame = frame[y:y+h, x:x+w]
 
-    ws_view = cv2.warpPerspective(frame , camera_to_ws_H, ws_view_size)
-    frame = cv2.resize(frame, (int(size[0]/2), int(size[1]/2)))
-    ws_view = cv2.resize(ws_view, (int(size[0]/2), int(size[1]/2)))
-    frame = np.hstack((frame, ws_view))
-    cv2.imshow('frame', frame)
+#     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) #-- remember, OpenCV stores color images in Blue,
+#     draw_rectangle(frame, ws_corners, (0, 255, 0), 2, diagonals=True)
+#     detected_tags = tag_detector.detect(gray)
+#     # if ids is not None and ids[0] == id_to_find:
+#     for tag in detected_tags:
+#         if tag.tag_id not in tags_to_id:
+#             continue
+#         measuring_pts[tag.tag_id] = [tag.center[0], tag.center[1]]
+#         draw_rectangle(frame, tag.corners, (0, 255, 0), 2)
+#         print_tag_info(frame, tag, cv2.FONT_HERSHEY_SIMPLEX, (0, 0, 255), 0.5, 2)
 
-    key = cv2.waitKey(1) & 0xFF
-    # Save to file:
-    if key == 13:
-        if horizontal_d:
-            horizontal_d = False
-            vertical_d = True
-            d0d3_d = input("Enter distance between tag 0 and 3:")
-            px2m_ratio_h = float(d0d3_d)/pixel_dist
-            tags_to_id = [0, 1]
-            measuring_pts = {}
-            for tag_no in tags_to_id:
-                measuring_pts[tag_no] = ws_corners[tag_no]
-        elif vertical_d:
-            vertical_d = False
-            measuring_px2m_ratio = False
-            d0d1_d = input("Enter distance between tag 0 and 1:")
-            px2m_ratio_v = float(d0d1_d)/pixel_dist
-            print("\tSaving workspace specs to file...")
-            np.savetxt('px2m_ratio_h.txt', np.array([px2m_ratio_h]), delimiter=',')
-            np.savetxt('px2m_ratio_v.txt', np.array([px2m_ratio_v]), delimiter=',')
-    # Load from file:
-    elif key==27:
-        measuring_px2m_ratio = False
-        print("\tLoading workspace specs from file...")
-        px2m_ratio_h = np.loadtxt('px2m_ratio_h.txt', delimiter=',')
-        px2m_ratio_v = np.loadtxt('px2m_ratio_v.txt', delimiter=',')
+#     draw_line(frame, measuring_pts[tags_to_id[0]], measuring_pts[tags_to_id[1]], (0, 0, 255), 3)
+#     measuring_pts_vector = warp_point(camera_to_ws_H, np.array(measuring_pts[tags_to_id[0]]))\
+#                             -warp_point(camera_to_ws_H, np.array(measuring_pts[tags_to_id[1]]))
+#     pixel_dist = np.linalg.norm(measuring_pts_vector)
+#     dist_text_anchor = (np.array(measuring_pts[tags_to_id[1]]) + measuring_pts_vector/2).astype(int)
+#     cv2.putText(frame, "D=" + str(int(pixel_dist)) + "px", dist_text_anchor,
+#                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 4)
 
-print("\tWorkspace dimensions in real world: %.4fm x %.4fm" % (ws_view_size[0]*px2m_ratio_h, ws_view_size[1]*px2m_ratio_v))
+#     ws_view = cv2.warpPerspective(frame , camera_to_ws_H, ws_view_size)
+#     frame = cv2.resize(frame, (int(size[0]/2), int(size[1]/2)))
+#     ws_view = cv2.resize(ws_view, (int(size[0]/2), int(size[1]/2)))
+#     frame = np.hstack((frame, ws_view))
+#     cv2.imshow('frame', frame)
 
-src_points = np.array([    
-    [0, ws_view_size[1]],
-    [ws_view_size[0], ws_view_size[1]],
-    [ws_view_size[0], 0]
-]).astype(np.float32)
-dest_points = np.array([    
-    [0, ws_view_size[1]*px2m_ratio_v],
-    [ws_view_size[0]*px2m_ratio_h, ws_view_size[1]*px2m_ratio_v],
-    [ws_view_size[0]*px2m_ratio_h, 0]
-]).astype(np.float32)
-ws_pix_to_world = cv2.getAffineTransform(src_points, dest_points)
-world_to_ws_pix = cv2.getAffineTransform(dest_points, src_points)
+#     key = cv2.waitKey(1) & 0xFF
+#     # Save to file:
+#     if key == 13:
+#         if horizontal_d:
+#             horizontal_d = False
+#             vertical_d = True
+#             d0d3_d = input("Enter distance between tag 0 and 3:")
+#             px2m_ratio_h = float(d0d3_d)/pixel_dist
+#             tags_to_id = [0, 1]
+#             measuring_pts = {}
+#             for tag_no in tags_to_id:
+#                 measuring_pts[tag_no] = ws_corners[tag_no]
+#         elif vertical_d:
+#             vertical_d = False
+#             measuring_px2m_ratio = False
+#             d0d1_d = input("Enter distance between tag 0 and 1:")
+#             px2m_ratio_v = float(d0d1_d)/pixel_dist
+#             print("\tSaving workspace specs to file...")
+#             np.savetxt('px2m_ratio_h.txt', np.array([px2m_ratio_h]), delimiter=',')
+#             np.savetxt('px2m_ratio_v.txt', np.array([px2m_ratio_v]), delimiter=',')
+#     # Load from file:
+#     elif key==27:
+#         measuring_px2m_ratio = False
+#         print("\tLoading workspace specs from file...")
+#         px2m_ratio_h = np.loadtxt('px2m_ratio_h.txt', delimiter=',')
+#         px2m_ratio_v = np.loadtxt('px2m_ratio_v.txt', delimiter=',')
+
+# print("\tWorkspace dimensions in real world: %.4fm x %.4fm" % (ws_view_size[0]*px2m_ratio_h, ws_view_size[1]*px2m_ratio_v))
+
+# src_points = np.array([    
+#     [0, ws_view_size[1]],
+#     [ws_view_size[0], ws_view_size[1]],
+#     [ws_view_size[0], 0]
+# ]).astype(np.float32)
+# dest_points = np.array([    
+#     [0, ws_view_size[1]*px2m_ratio_v],
+#     [ws_view_size[0]*px2m_ratio_h, ws_view_size[1]*px2m_ratio_v],
+#     [ws_view_size[0]*px2m_ratio_h, 0]
+# ]).astype(np.float32)
+# ws_pix_to_world = cv2.getAffineTransform(src_points, dest_points)
+# world_to_ws_pix = cv2.getAffineTransform(dest_points, src_points)
 # print(ws_pix_to_world)
 # quit()
 setting_robot_orig = True
@@ -275,10 +293,10 @@ while setting_robot_orig:
                                                 camera_matrix, camera_distortion)
         draw_axis(frame, robot_frame_ci_orig, robot_axis_image)
 
-    ws_view = cv2.warpPerspective(frame , camera_to_ws_H, ws_view_size)
-    frame = cv2.resize(frame, (int(size[0]/2), int(size[1]/2)))
-    ws_view = cv2.resize(ws_view, (int(size[0]/2), int(size[1]/2)))
-    frame = np.hstack((frame, ws_view))
+    # ws_view = cv2.warpPerspective(frame , camera_to_ws_H, ws_view_size)
+    # frame = cv2.resize(frame, (int(size[0]/2), int(size[1]/2)))
+    # ws_view = cv2.resize(ws_view, (int(size[0]/2), int(size[1]/2)))
+    # frame = np.hstack((frame, ws_view))
     cv2.imshow('frame', frame)
 
     key = cv2.waitKey(1) & 0xFF
@@ -288,11 +306,14 @@ while setting_robot_orig:
         setting_robot_orig = False
         print("\tSaving workspace specs to file...")
         # robot_frame_orig = warp_point(camera_to_ws_H, np.array(robot_frame_ci_orig)) * px2m_ratio
-        robot_frame_orig = warp_point(camera_to_ws_H, np.array(robot_frame_ci_orig))
-        robot_frame_orig = np.matmul(ws_pix_to_world, np.r_[robot_frame_orig, [1]])
+        x = float(input("Enter robot X origin offset, if needed"))
+        y = float(input("Enter robot Y origin offset, if needed"))
+        robot_orig_offset = np.array([x, y])
+        robot_frame_orig = warp_point(camera_to_world_H, np.array(robot_frame_ci_orig))        
         np.savetxt('robot_frame_orig.txt', robot_frame_orig, delimiter=',')
         np.savetxt('robot_rvec.txt', robot_rvec, delimiter=',')
         np.savetxt('robot_tvec.txt', robot_tvec, delimiter=',')
+        np.savetxt('robot_orig_offset.txt', robot_orig_offset, delimiter=',')
     # Load from file:
     elif key==27:
         setting_robot_orig = False
@@ -300,18 +321,19 @@ while setting_robot_orig:
         robot_frame_orig = np.loadtxt('robot_frame_orig.txt', delimiter=',')
         robot_rvec = np.loadtxt('robot_rvec.txt', delimiter=',')
         robot_tvec = np.loadtxt('robot_tvec.txt', delimiter=',')
+        robot_orig_offset = np.loadtxt('robot_orig_offset.txt', delimiter=',')
 
 # Robot frame axis projected in camera image
 robot_axis_in_ci, _ = cv2.projectPoints(axis, robot_rvec, robot_tvec,
                                         camera_matrix,
                                         camera_distortion)
 # Robot frame x and y direction in workspace pixels
-robot_frame_x_ws = warp_point(camera_to_ws_H, robot_axis_in_ci[0][0])
-robot_frame_y_ws = warp_point(camera_to_ws_H, robot_axis_in_ci[1][0])
+robot_frame_x_ws = warp_point(camera_to_world_H, robot_axis_in_ci[0][0])
+robot_frame_y_ws = warp_point(camera_to_world_H, robot_axis_in_ci[1][0])
 # Robot frame position in workspace pixels
-robot_frame_orig_ws = np.matmul(world_to_ws_pix, np.r_[robot_frame_orig, [1]])
-new_x = robot_frame_x_ws - robot_frame_orig_ws
-new_y = robot_frame_y_ws - robot_frame_orig_ws
+
+new_x = robot_frame_x_ws - robot_frame_orig
+new_y = robot_frame_y_ws - robot_frame_orig
 new_x /= np.linalg.norm(new_x)
 new_y /= np.linalg.norm(new_y)
 robot_rot_mat = np.c_[new_x.T, new_y.T]
@@ -346,22 +368,29 @@ while query_tag_position:
         tag_axis_image, _ = cv2.projectPoints(axis, tag_rvec, tag_tvec, camera_matrix, camera_distortion)
         draw_axis(frame, (cX, cY), tag_axis_image)
         text_ancor = (int(tag.corners[1][0]), int(tag.corners[1][1]))
-        tag_in_robot_coords = wspix2robot_coord(
-                                            warp_point(camera_to_ws_H, np.array([cX, cY])),
-                                            robot_frame_orig, robot_rot_mat,ws_pix_to_world, world_to_ws_pix)
+        # tag_in_robot_coords = wspix2robot_coord(
+        #                                     warp_point(camera_to_ws_H, np.array([cX, cY])),
+        #                                     robot_frame_orig, robot_rot_mat,ws_pix_to_world, world_to_ws_pix)
+        # tag_in_robot_coords = warp_point(camera_to_world_H, np.array([cX, cY]))
+        tag_in_robot_coords = image2robot_coord(np.array([cX, cY]),
+                                                robot_orig_offset,
+                                                robot_frame_orig,
+                                                robot_rot_mat, 
+                                                camera_to_world_H)
         cv2.putText(frame, "("+str(tag_in_robot_coords[0].round(4)) +","+str(tag_in_robot_coords[1].round(4))+")", (text_ancor[0], text_ancor[1]+25),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 3)
 
     # robot_axis_image, _ = cv2.projectPoints(axis, robot_rvec, robot_tvec, camera_matrix, camera_distortion)
-    draw_axis(frame, warp_point(ws_to_camera_H, robot_frame_orig_ws), robot_axis_image)
+    draw_axis(frame, warp_point(world_to_camera_H, robot_frame_orig), robot_axis_image)
+    robot_frame_orig_camera = warp_point(world_to_camera_H, robot_frame_orig + np.matmul(robot_rot_mat,robot_orig_offset))
+    cv2.circle(frame, (int(robot_frame_orig_camera[0]), int(robot_frame_orig_camera[1])), 5,(0, 0, 255), -1)
     # robot_frame_c_i = warp_point(ws_to_camera_H, robot_frame_orig_ws)
-    # cv2.circle(frame, (int(robot_frame_c_i[0]), int(robot_frame_c_i[1])), 5,(0, 0, 255), -1)
 
-    ws_view = cv2.warpPerspective(frame , camera_to_ws_H, ws_view_size)
+    # ws_view = cv2.warpPerspective(frame , camera_to_ws_H, ws_view_size)
 
-    frame = cv2.resize(frame, (int(size[0]/2), int(size[1]/2)))
-    ws_view = cv2.resize(ws_view, (int(size[0]/2), int(size[1]/2)))
-    frame = np.hstack((frame, ws_view))
+    # frame = cv2.resize(frame, (int(size[0]/2), int(size[1]/2)))
+    # ws_view = cv2.resize(ws_view, (int(size[0]/2), int(size[1]/2)))
+    # frame = np.hstack((frame, ws_view))
     cv2.imshow('frame', frame)
 
     key = cv2.waitKey(1) & 0xFF
